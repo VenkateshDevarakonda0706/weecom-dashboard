@@ -8,12 +8,17 @@ export function useProducts({ limit = 10, skip = 0, search = "" } = {}) {
   return useQuery({
     queryKey: ["products", { limit, skip, search }],
     queryFn: async () => {
+      // Ensure API_BASE is the host (e.g. https://dummyjson.com)
+      // and append /products here for consistent endpoint construction
       let url = `${API_BASE}/products?limit=${limit}&skip=${skip}`;
       if (search) url += `&q=${encodeURIComponent(search)}`;
       const { data } = await axios.get(url);
       return data;
     },
-    onError: () => toast.error('Failed to fetch products'),
+    onError: (error) => {
+      console.error('Error fetching products:', error);
+      toast.error('Failed to fetch products');
+    },
   });
 }
 
@@ -25,7 +30,7 @@ export function useAddProduct() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["products"]);
+      queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success('Product added');
     },
     onError: () => toast.error('Failed to add product'),
@@ -40,7 +45,7 @@ export function useUpdateProduct() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["products"]);
+      queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success('Product updated');
     },
     onError: () => toast.error('Failed to update product'),
@@ -55,7 +60,7 @@ export function useDeleteProduct() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["products"]);
+      queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success('Product deleted');
     },
     onError: () => toast.error('Failed to delete product'),

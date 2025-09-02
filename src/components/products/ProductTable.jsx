@@ -9,14 +9,14 @@ import ProductDialogs from "./ProductDialogs";
 export default function ProductTable() {
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState("all");
   const [dialog, setDialog] = useState({ open: false, type: null, product: null });
   const limit = 10;
   const skip = page * limit;
   const { data, isLoading, isError } = useProducts({ limit, skip, search });
 
   const categories = data?.products ? Array.from(new Set(data.products.map(p => p.category))) : [];
-  const filteredProducts = category
+  const filteredProducts = (category && category !== "all")
     ? data?.products?.filter(p => p.category === category)
     : data?.products;
 
@@ -47,7 +47,8 @@ export default function ProductTable() {
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
+            {/* Radix Select requires non-empty values for SelectItem; use 'all' as sentinel */}
+            <SelectItem value="all">All Categories</SelectItem>
             {categories.map(cat => (
               <SelectItem key={cat} value={cat}>{cat}</SelectItem>
             ))}
